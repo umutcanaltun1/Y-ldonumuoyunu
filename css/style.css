@@ -1,0 +1,297 @@
+/* css/style.css - Mevcut dosyanın tamamını bununla değiştirebilirsin veya ilgili yerleri güncelleyebilirsin */
+
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+    font-family: 'Arial', sans-serif;
+    overflow: hidden;
+    position: fixed; /* iOS'ta lastik bandı (rubber-band) kaydırma ve zıplama efektini engeller */
+    overscroll-behavior: none;
+    touch-action: none; /* Pinch-zoom ve çift dokunma yakınlaştırmasını engeller */
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none; /* iOS'ta görsellere uzun basınca çıkan menüyü engeller */
+}
+
+/* Oyun alanını her cihaza sığdıran, en-boy oranını koruyan sarmalayıcı.
+   Gerçek boyutlar JS tarafından #game-container'a transform: scale() ile uygulanır. */
+#viewport-wrapper {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #000;
+    /* iPhone çentik/Dynamic Island alanlarına oyun taşmasın */
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    box-sizing: border-box;
+}
+
+#game-container {
+    width: 800px;
+    height: 450px;
+    background-color: #000;
+    position: relative;
+    overflow: hidden;
+    border: 2px solid #444;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    transform-origin: center center;
+    flex-shrink: 0;
+}
+
+/* --- MOBİL DOKUNMATİK KONTROL --- */
+#touch-controls {
+    position: fixed;
+    right: calc(20px + env(safe-area-inset-right));
+    bottom: calc(24px + env(safe-area-inset-bottom));
+    z-index: 6000;
+    display: none; /* Varsayılan gizli, JS dokunmatik cihaz tespit edince gösterir */
+}
+
+#btn-right {
+    width: 84px;
+    height: 84px;
+    border-radius: 50%;
+    border: 3px solid rgba(255,255,255,0.6);
+    background-color: rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(4px);
+    color: #fff;
+    font-size: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: none;
+    user-select: none;
+    padding: 0;
+}
+
+#btn-right:active,
+#btn-right.pressed {
+    background-color: rgba(255, 255, 255, 0.4);
+    transform: scale(0.94);
+}
+
+/* --- YATAY ÇEVİRME İPUCU (dar/portre ekranlarda) --- */
+#rotate-hint {
+    position: fixed;
+    top: calc(12px + env(safe-area-inset-top));
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 7000;
+    background: rgba(0,0,0,0.75);
+    color: #fff;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    padding: 8px 14px;
+    border-radius: 20px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+}
+
+#rotate-hint.show {
+    opacity: 1;
+}
+
+#scene-area {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    /* Başlangıç arka planı */
+    background-image: url('../assets/images/bg_yuruyus.png');
+    background-size: cover; /* Veya 'auto 100%' eğer görselin yüksekliği tam otursun istersen */
+    background-repeat: repeat-x;
+    background-position-x: 0px;
+}
+
+.character {
+    position: absolute;
+    bottom: 20px; /* Zeminden yükseklik */
+    height: 150px; /* Karakter boyutu - Görseline göre burayı artırıp azaltabilirsin */
+    width: auto; /* Orantıyı koru */
+    z-index: 2;
+    image-rendering: pixelated;
+    -webkit-user-drag: none;
+    -webkit-touch-callout: none;
+    user-select: none;
+    pointer-events: none;
+}
+
+img {
+    -webkit-user-drag: none;
+    -webkit-touch-callout: none;
+}
+
+#deniz {
+    /* Deniz başlangıçta sağda gizli */
+    right: -150px;
+}
+/* --- UI KATMANI --- */
+#ui-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* Bu önemli: UI katmanı tıklamaları engellemesin, alttaki oyuna geçsin */
+    z-index: 100; /* Sahnelerin her zaman üstünde dursun */
+}
+
+/* Tarih Göstergesi Stili */
+#date-display {
+position: absolute;
+    top: 25px;
+    left: 25px;
+    
+    /* Retro Kutu Tasarımı */
+    background-color: #fcff4b;   /* Kutunun içi beyaz */
+    color: #000;              /* Yazı siyah */
+    padding: 5px 10px;        /* Yazının kenarlara mesafesi */
+    
+    /* Font Ayarları (Sistem fontu ile retro hava) */
+    font-family: 'Courier New', Courier, monospace; /* Sistemdeki en 'eski' görünümlü font */
+    font-size: 16px;
+    font-weight: bold;
+    text-transform: uppercase; /* Hepsi büyük harf olsun, daha oyunsu durur */
+    
+    /* Pikselli Çerçeve Hilesi (Pure CSS Pixel Art Border) */
+    /* Bu, 4px kalınlığında keskin bir siyah çerçeve oluşturur */
+    box-shadow: 
+        0 4px 0 0 #000, 
+        0 -4px 0 0 #000, 
+        4px 0 0 0 #000, 
+        -4px 0 0 0 #000;
+        
+    /* Tarayıcının yumuşatma yapmasını engellemeye çalışalım */
+    image-rendering: pixelated;
+    font-smooth: never;
+    -webkit-font-smoothing: none;
+}
+
+#debug-info {
+    position: absolute; 
+    top: 10px; 
+    left: 10px; 
+    color: white; 
+    font-family: 'Press Start 2P', cursive; 
+    font-size: 10px; /* Daha küçük yapalım */
+    text-shadow: 1px 1px 2px black; 
+    pointer-events: none;
+}
+
+/* --- GEÇİŞ EKRANI (Transition Screen) --- */
+#transition-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #000; /* Simsiyah perde */
+    z-index: 9999; /* Her şeyin (UI'ın bile) üstünde */
+    
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+    opacity: 0;            /* Başlangıçta tamamen şeffaf */
+    pointer-events: none;  /* Şeffafken tıklamaları engellemesin */
+    transition: opacity 1.5s ease-in-out; /* 1.5 saniyede yavaşça belirsin/kaybolsun */
+}
+
+/* Bu sınıf eklendiğinde perde görünür olacak */
+#transition-screen.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+#transition-text {
+    color: white;
+    font-family: 'Courier New', Courier, monospace; /* Retro font */
+    font-size: 28px;
+    text-align: center;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    
+    /* Hafif titreme efekti vermesi için pixelated */
+    image-rendering: pixelated; 
+    transition: opacity 0.5s ease-in-out;
+}
+#message-box {
+    position: absolute;
+    top: 50px;            /* Karakterin başının üzeri için tahmini konum */
+    left: 50%;            /* Ekranın ortası */
+    transform: translateX(-50%); /* Tam ortalamak için */
+    width: 60%;           /* Ekranın %60'ı genişliğinde */
+    background-color: #fff;
+    border: 4px solid #000; /* Kalın pixel çerçeve */
+    padding: 15px;
+    z-index: 10;          /* Karakterlerin önünde dursun */
+    
+    /* Hafif gölge ile derinlik */
+    box-shadow: 8px 8px 0 rgba(0,0,0,0.2);
+}
+
+#message-text {
+    margin: 0;
+    font-family: 'Courier New', monospace; /* Daktilo/Pixel havası */
+    font-size: 18px;
+    font-weight: bold;
+    color: #000;
+    text-align: center;
+    image-rendering: pixelated;
+}
+#coffee-counter {
+    position: absolute;
+    top: 25px;
+    right: 25px;
+    color: #ffffff; /* Beyaz yazı */
+    font-family: 'Courier New', Courier, monospace; /* Retro font */
+    font-size: 24px;
+    font-weight: bold;
+    z-index: 101; /* Tarih ile aynı seviyede, en üstte */
+    
+    /* Okunabilirlik için kalın siyah dış hat (Pixel art tarzı gölge) */
+    text-shadow: 
+        -2px 0 0 #000, 
+        2px 0 0 #000, 
+        0 -2px 0 #000, 
+        0 2px 0 #000, 
+        2px 2px 0 #000; /* Hafif 3D etkisi */
+
+    image-rendering: pixelated;
+}
+/* css/style.css en alta ekle */
+
+#final-celebration {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0); /* Başlangıçta boyutu 0 (gizli) */
+    
+    text-align: center;
+    color: #ff4d4d; /* Kırmızı/Pembe aşk rengi */
+    font-family: 'Press Start 2P', cursive, sans-serif; /* Varsa pixel font, yoksa sans-serif */
+    font-size: 40px;
+    font-weight: bold;
+    
+    /* Kalın beyaz dış hat ve gölge */
+    text-shadow: 
+        3px 3px 0 #fff,
+        -3px -3px 0 #fff,
+        3px -3px 0 #fff,
+        -3px 3px 0 #fff,
+        5px 5px 10px rgba(0,0,0,0.5);
+
+    z-index: 2000; /* En en üstte */
+    transition: transform 1s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Zıplayarak büyüme efekti */
+}
+
+/* Bu sınıf eklendiğinde mesaj büyüyüp ekrana gelecek */
+#final-celebration.show {
+    transform: translate(-50%, -50%) scale(1);
+}

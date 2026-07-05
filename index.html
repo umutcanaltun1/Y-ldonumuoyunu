@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="theme-color" content="#000000">
+    <title>Umut Can'ın Macerası</title>
+    
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <div id="rotate-hint">📱 Daha iyi bir deneyim için telefonunu yan çevir</div>
+
+    <div id="viewport-wrapper">
+    <div id="game-container">
+        
+        <div id="scene-area">
+            
+            <img id="umut-can" class="character" src="assets/images/umut_can.png" alt="Umut Can">
+            
+            <img id="deniz" class="character" src="assets/images/deniz.png" alt="Deniz" style="display: none;">
+            <img id="coffee-item" src="assets/images/collectible_coffee.png" style="position: absolute; display: none; width: 40px; height: auto; bottom: 100px; z-index: 1;">
+
+            <div id="message-box" style="display: none;">
+        <p id="message-text"></p>
+        </div>
+        </div>
+        <div id="ui-layer">
+        <div id="transition-screen">
+            <div id="transition-text">BÖLÜM 1</div>
+        </div>
+
+            <!-- Debug bilgi kutusu (JS tarafından yazılacak kısa durum mesajları) -->
+            <div id="debug-info" aria-hidden="true"></div>
+
+        </div>
+        <div id="date-display">13 Kasım 2024</div>
+        <div id="coffee-counter" style="display: none; position: absolute; top: 20px; right: 25px; color: white; font-family: 'Courier New', monospace; font-size: 20px; text-shadow: 2px 2px 0 #000;">
+        ☕ x <span id="coffee-count">0</span>
+        </div>
+        <div id="final-celebration">
+        MUTLU YIL DÖNÜMÜMÜZ AŞKIM!
+        <br>
+        <span style="font-size: 0.6em;">❤️ 20.11.2025 ❤️</span>
+    </div>
+    </div>
+    </div>
+    </div>
+
+    <!-- Mobil dokunmatik kontrol: klavyesiz cihazlarda ilerlemeyi sağlar -->
+    <div id="touch-controls">
+        <button id="btn-right" aria-label="İleri git">➡️</button>
+    </div>
+
+    <script src="js/game.js"></script>
+
+</body>
+</html>
